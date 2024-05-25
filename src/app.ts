@@ -3,6 +3,10 @@ import morgan from "morgan";
 import cors from "cors";
 import todoRoutes from "./routes/todoRoutes";
 import { ENV } from "./config/secrets";
+import {
+  globalErrorHandler,
+  notFoundHandler,
+} from "./middlewares/errorMiddleware";
 
 class App {
   public app: express.Application;
@@ -28,7 +32,10 @@ class App {
     this.app.use("/api/v1/todos", todoRoutes);
   }
 
-  private errorHandlers(): void {}
+  private errorHandlers(): void {
+    this.app.all("*", notFoundHandler);
+    this.app.use(globalErrorHandler);
+  }
 }
 
 export default new App().app;
