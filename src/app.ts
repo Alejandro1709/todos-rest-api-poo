@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import todoRoutes from "./routes/todoRoutes";
 import { ENV } from "./config/secrets";
 
 class App {
@@ -9,6 +10,8 @@ class App {
   constructor() {
     this.app = express();
     this.config();
+    this.routes();
+    this.errorHandlers();
   }
 
   private config(): void {
@@ -20,6 +23,12 @@ class App {
       this.app.use(morgan("dev"));
     }
   }
+
+  private routes(): void {
+    this.app.use("/api/v1/todos", todoRoutes);
+  }
+
+  private errorHandlers(): void {}
 }
 
 export default new App().app;
