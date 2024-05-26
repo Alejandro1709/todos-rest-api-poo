@@ -1,47 +1,65 @@
+import { PrismaClient } from "@prisma/client";
 import Todo from "../models/todo";
 
 export default class TodoService {
   private todos: Todo[] = [];
+  private prisma: PrismaClient = new PrismaClient();
 
-  public getTodos(): Todo[] {
-    return this.todos;
+  public async getTodos() {
+    const todos = await this.prisma.todo.findMany({
+      where: {
+        completed: false,
+      },
+    });
+
+    return todos;
   }
 
-  public getTodo(id: number): Todo | undefined {
-    return this.todos.find((t) => t.id === id);
-  }
-
-  public createTodo(id: number, text: string): Todo {
-    const newTodo: Todo = {
-      id,
-      text,
-      completed: false,
-    };
-
-    this.todos.push(newTodo);
-
-    return newTodo;
-  }
-
-  public completeTodo(id: number): void {
-    const updatedTodos: Todo[] = this.todos.map((t) =>
-      t.id === id ? { ...t, completed: true } : { ...this.todos }
-    );
-
-    this.todos = updatedTodos;
-  }
-
-  public editTodo(id: number, text: string): Todo | undefined {
-    const todo = this.todos.find((t) => t.id === id);
-    todo?.text = text;
+  public async getTodo(id: string) {
+    const todo = await this.prisma.todo.findUnique({
+      where: { id },
+    });
 
     return todo;
   }
 
-  public deleteTodo(id: number): Todo[] {
-    const filtered = this.todos.filter((t) => t.id !== id);
-    this.todos = filtered;
+  public async createTodo(text: string) {
+    const todo = await this.prisma.todo.create({
+      data: {
+        text: text,
+      },
+    });
 
-    return filtered;
+    return todo;
+  }
+
+  public async completeTodo(id: string) {
+    const updatedTodo = this.prisma.todo.update({
+      where: { id },
+      data: {
+        completed: true,
+      },
+    });
+
+    return updatedTodo;
+  }
+
+  public async editTodo(id: string, text: string) {
+    const todo = this.prisma.todo.update({
+      where: { id },
+      data: {
+        text,
+      },
+    });
+
+    return todo;
+  }
+
+  public async deleteTodo(id: string) {
+    const todo = this.prisma.todo.delete({
+      where: { id },
+    });
+
+    return todo;
   }
 }
