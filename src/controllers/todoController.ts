@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import TodoService from "../services/todoServices";
 
 class TodoController {
@@ -14,54 +14,78 @@ class TodoController {
     this.deleteTodo = this.deleteTodo.bind(this);
   }
 
-  public async getTodos(_req: Request, res: Response) {
-    const todos = await this.todoService.getTodos();
-    res.status(200).json(todos);
-  }
-
-  public async getTodo(req: Request, res: Response) {
-    const { id } = req.params;
-
-    const todo = await this.todoService.getTodo(id);
-
-    if (!todo) {
-      throw new Error("Todo Not Found");
+  public async getTodos(_req: Request, res: Response, next: NextFunction) {
+    try {
+      const todos = await this.todoService.getTodos();
+      res.status(200).json(todos);
+    } catch (error) {
+      next(error);
     }
-
-    res.status(200).json(todo);
   }
 
-  public async createTodo(req: Request, res: Response) {
+  public async getTodo(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+
+    try {
+      const todo = await this.todoService.getTodo(id);
+
+      if (!todo) {
+        throw new Error("Todo Not Found");
+      }
+
+      res.status(200).json(todo);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async createTodo(req: Request, res: Response, next: NextFunction) {
     const { text } = req.body;
 
-    const todo = await this.todoService.createTodo(text);
+    try {
+      const todo = await this.todoService.createTodo(text);
 
-    res.status(201).json(todo);
+      res.status(201).json(todo);
+    } catch (error) {
+      next(error);
+    }
   }
 
-  public async completeTodo(req: Request, res: Response) {
+  public async completeTodo(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
 
-    const todo = await this.todoService.completeTodo(id);
+    try {
+      const todo = await this.todoService.completeTodo(id);
 
-    res.status(200).json({ message: "Todo Completed" });
+      res.status(200).json({ message: "Todo Completed" });
+    } catch (error) {
+      next(error);
+    }
   }
 
-  public async editTodo(req: Request, res: Response) {
+  public async editTodo(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
     const { text } = req.body;
 
-    const updatedTodo = await this.todoService.editTodo(id, text);
+    try {
+      const updatedTodo = await this.todoService.editTodo(id, text);
 
-    res.status(200).json(updatedTodo);
+      res.status(200).json(updatedTodo);
+    } catch (error) {
+      next(error);
+    }
   }
 
-  public async deleteTodo(req: Request, res: Response) {
+  public async deleteTodo(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
 
-    const todos = await this.todoService.deleteTodo(id);
+    try {
+      const todos = await this.todoService.deleteTodo(id);
 
-    res.status(200).json(todos);
+      res.status(200).json(todos);
+    } catch (error) {
+      next(error);
+    }
   }
 }
 
